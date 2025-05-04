@@ -8,7 +8,7 @@ stop_processing = threading.Event()
 
 def concurrent_loop(network,thread,stop_event):
     while not stop_event.is_set():
-        #print(f"Thread {thread}: Starting task...")
+        print(f"Thread {thread}: Starting task...")
         result = network.dfs('0',[],[])
         if result:
             network.update_flow(result)
@@ -21,7 +21,6 @@ def run_with_thread_pool(network, num_threads):
         with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
             {executor.submit(concurrent_loop,network, i, stop_processing): i for i in range(num_threads)}
         if not network.dfs('0',[],[]):  true_stop = False
-
 
 
 

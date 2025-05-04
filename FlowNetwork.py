@@ -1,17 +1,15 @@
 import collections,math,threading
 
 class Edge:
-    def __init__(self,from_node, to_node, capacity, held=0):
+    def __init__(self,from_node, to_node, capacity):
        
         if capacity < 0:
-            raise ValueError("Capacity cannot be negative.")
-        if held < 0:
-             raise ValueError("Held value cannot be negative.") 
+            raise ValueError("Capacity cannot be negative.") 
         
         self.from_node = from_node
         self.to_node = to_node
         self.capacity = capacity
-        self.held = held
+        self.held = 0
     
     def update_held(self,value):
         self.held += value
@@ -20,6 +18,7 @@ class Edge:
         return f"({self.from_node},{self.to_node}, capacity={self.capacity})"
 
 class FlowNetwork:
+
     def __init__(self):
         self.graph = collections.defaultdict(list)
         self._lock = threading.Lock()
@@ -28,9 +27,6 @@ class FlowNetwork:
     def add_node(self, node):
         if node not in self.graph:
             self.graph[node] = []
-            print(f"Node '{node}' added.")
-        else:
-            print(f"Node '{node}' already exists.")
 
     def add_edge(self, from_node, to_node, capacity, held=0):
 
@@ -42,7 +38,6 @@ class FlowNetwork:
         new_edge = Edge(from_node,to_node, capacity, held)
 
         self.graph[from_node].append(new_edge)
-        print(f"Edge added from '{from_node}' to '{to_node}' with capacity={capacity} and held={held}.")
 
 
     def get_edges(self, node):
@@ -127,12 +122,10 @@ class FlowNetwork:
             with open(filename, 'r') as f:
                 for line in f:
                     line = line.strip()
-                    # Skip empty lines and comments
                     if not line or line.startswith('#'):
                         continue
 
                     try:
-                        # Split the line by space
                         parts = line.split()
                         if len(parts) != 3:
                             print(f"Skipping malformed line: {line} (Expected 3 parts, got {len(parts)})")
@@ -145,7 +138,6 @@ class FlowNetwork:
                         from_node_id = from_name_str
                         to_node_id = to_name_str
 
-                        # Ensure nodes exist in the graph structure
                         network.add_node(from_node_id)
                         network.add_node(to_node_id)
 
