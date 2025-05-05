@@ -28,14 +28,14 @@ class FlowNetwork:
         if node not in self.graph:
             self.graph[node] = []
 
-    def add_edge(self, from_node, to_node, capacity, held=0):
+    def add_edge(self, from_node, to_node, capacity):
 
         if from_node not in self.graph:
              self.add_node(from_node)
         if to_node not in self.graph:
              self.add_node(to_node)
 
-        new_edge = Edge(from_node,to_node, capacity, held)
+        new_edge = Edge(from_node,to_node, capacity)
 
         self.graph[from_node].append(new_edge)
 
@@ -78,7 +78,7 @@ class FlowNetwork:
         reachable = sorted(self.get_edges(node), key=lambda edge: edge.held)
         for edge in reachable:
             if edge.capacity > 0 and edge.to_node not in visited:
-                path.append((edge.from_node,edge.to_node))
+                path.append(edge)
                 edge.update_held(1)
                 result = self.dfs(edge.to_node,path,visited)
                 if result: return result
@@ -95,15 +95,12 @@ class FlowNetwork:
 
     def update_flow(self,edge_path):
         with self._lock:
-            edge_list = []
-            for edge in edge_path:
-               edge_list.append(self.get_edge(edge[0],edge[1]))
             min_capacity = math.inf
-            for edge in edge_list:
+            for edge in edge_path:
                 if edge.capacity < min_capacity:
                     min_capacity = edge.capacity
             if min_capacity > 0:
-                for edge in edge_list:
+                for edge in edge_path:
                     self.update_capacities(edge,min_capacity)
                     edge.update_held(-1)
 
@@ -134,14 +131,13 @@ class FlowNetwork:
                         from_name_str, to_name_str, capacity_str = parts
 
                         capacity = float(capacity_str)
-                        held = 0.0 
                         from_node_id = from_name_str
                         to_node_id = to_name_str
 
                         network.add_node(from_node_id)
                         network.add_node(to_node_id)
 
-                        network.add_edge(from_node_id, to_node_id, capacity, held)
+                        network.add_edge(from_node_id, to_node_id, capacity)
 
                     except ValueError as e:
                         print(f"Skipping line due to data conversion error: {line} - {e}")
